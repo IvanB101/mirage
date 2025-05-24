@@ -10,38 +10,44 @@ pub const getRequiredInstanceExtensions = c.glfwGetRequiredInstanceExtensions;
 pub const Error = error{
     GLFWInitializationFailed,
     WindowCreationFailed,
-    SurfaceCreationFailed,
 };
 
 pub const Window = struct {
     const Self = @This();
-    const InitialHeight = 600;
-    const InitialWidth = 800;
 
     _handle: *c.GLFWwindow,
     width: c_int,
     height: c_int,
     framebuffer_resized: bool,
 
-    pub fn init(name: [*c]const u8) !Self {
+    pub const Config = struct {
+        name: [*c]const u8,
+        width: u32 = 800,
+        height: u32 = 600,
+        allocator: std.mem.Allocator,
+    };
+
+    pub fn init(config: Config) !Self {
         if (c.glfwInit() == c.GLFW_FALSE) {
             return Error.GLFWInitializationFailed;
         }
         c.glfwWindowHint(c.GLFW_CLIENT_API, c.GLFW_NO_API);
         c.glfwWindowHint(c.GLFW_RESIZABLE, c.GLFW_TRUE);
 
-        const _handle = c.glfwCreateWindow(InitialWidth, InitialHeight, name, null, null);
-        if (_handle == null) {
-            return Error.WindowCreationFailed;
-        }
+        const _handle = c.glfwCreateWindow(config.width, config.height, config.name, null, null);
+        const window = try config.allocator.create(Window);
+        window.* = .{
+            ._handle = _handle orelse return Error.WindowCreationFailed,
+            .width = config.width,
+            .height = config.height,
+            .framebuffer_resized = false,
+        };
 
-        return .{ ._handle = _handle orelse unreachable, .width = InitialWidth, .height = InitialHeight, .framebuffer_resized = false };
-    }
-
-    pub fn setCallbacks(self: *Self) void {
-        c.glfwSetWindowUserPointer(self._handle, self);
+        c.glfwSetWindowUserPointer(window._handle, window);
         // discard previous callback
-        _ = c.glfwSetFramebufferSizeCallback(self._handle, resizeFrameBuffer);
+        _ = c.glfwSetFramebufferSizeCallback(window._handle, resizeFrameBuffer);
+
+        return window;
     }
 
     pub fn deinit(self: *Self) void {
@@ -75,13 +81,5 @@ pub const Window = struct {
 
     pub fn extent(self: *const Self) vk.Extent2D {
         return .{ @intCast(self.width), @intCast(self.height) };
-    }
-
-    pub fn createWindowSurface(self: *Self, instance: vk.Instance, surface: *vk.SurfaceKHR) !void {
-        const result = c.glfwCreateWindowSurface(instance, self._handle, null, surface);
-        if (result != vk.Success) {
-            std.debug.print("Erorr: {d}\n", .{result});
-            return Error.SurfaceCreationFailed;
-        }
     }
 };

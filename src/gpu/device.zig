@@ -3,14 +3,6 @@ const vk = @import("vulkan");
 const std = @import("std");
 const builtin = @import("builtin");
 
-pub export fn debugCallback(_: c_uint, _: u32, p_callback_data: ?*const vk.ExtDebugUtils.CallbackData, _: ?*anyopaque) callconv(.c) vk.Bool32 {
-    if (p_callback_data) |callback_data| {
-        std.debug.print("validation layer: {s}\n", .{callback_data.pMessage});
-    }
-
-    return vk.False;
-}
-
 pub const Error = error{
     DebugSetupFailed,
     CommandPoolCreationFailed,
@@ -166,11 +158,9 @@ pub const Device = struct {
                 .pQueuePriorities = &priority,
             });
         }
-
         const device_features: vk.PhysicalDeviceFeatures = .{
             .samplerAnisotropy = vk.True,
         };
-
         const create_info: vk.DeviceCreateInfo = .{
             .sType = vk.StructureType.DeviceCreateInfo,
             .queueCreateInfoCount = @intCast(queue_create_infos.items.len),
@@ -180,12 +170,10 @@ pub const Device = struct {
             .enabledExtensionCount = config.device_extensions.len,
             .ppEnabledExtensionNames = &config.device_extensions,
         };
-
         const result = vk.createDevice(self.physical_device, &create_info, null, &self._handle);
         if (result != vk.Success) {
             return Error.LogicalDeviceCreationFailed;
         }
-
         vk.getDeviceQueue(self._handle, indices.graphics_and_compute_family.?, 0, &self._graphic_queue);
         vk.getDeviceQueue(self._handle, indices.present_family.?, 0, &self._present_queue);
     }

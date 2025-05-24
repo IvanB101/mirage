@@ -10,14 +10,14 @@ pub const Bool32 = enum(c_uint) {
     true = c.VK_TRUE,
     false = c.VK_FALSE,
 };
-pub const SampleCountFlags = enum(c_uint) {
-    _1 = c.VK_SAMPLE_COUNT_1_BIT,
-    _2 = c.VK_SAMPLE_COUNT_2_BIT,
-    _4 = c.VK_SAMPLE_COUNT_4_BIT,
-    _8 = c.VK_SAMPLE_COUNT_8_BIT,
-    _16 = c.VK_SAMPLE_COUNT_16_BIT,
-    _32 = c.VK_SAMPLE_COUNT_32_BIT,
-    _64 = c.VK_SAMPLE_COUNT_64_BIT,
+pub const SampleFlags = enum(c_uint) {
+    count_1 = c.VK_SAMPLE_COUNT_1_BIT,
+    count_2 = c.VK_SAMPLE_COUNT_2_BIT,
+    count_4 = c.VK_SAMPLE_COUNT_4_BIT,
+    count_8 = c.VK_SAMPLE_COUNT_8_BIT,
+    count_16 = c.VK_SAMPLE_COUNT_16_BIT,
+    count_32 = c.VK_SAMPLE_COUNT_32_BIT,
+    count_64 = c.VK_SAMPLE_COUNT_64_BIT,
 };
 pub const StructureType = enum(c_int) {
     application_info = c.VK_STRUCTURE_TYPE_APPLICATION_INFO,
@@ -38,7 +38,7 @@ pub const CommandPoolCreateFlags = enum(c_int) {
     reset_command_buffer = c.VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
     protected = c.VK_COMMAND_POOL_CREATE_PROTECTED_BIT,
 };
-pub const QueueCreateFlags = enum(c_uint) {
+pub const QueueFlags = enum(c_uint) {
     graphics = c.VK_QUEUE_GRAPHICS_BIT,
     compute = c.VK_QUEUE_COMPUTE_BIT,
 };
